@@ -1,0 +1,20 @@
+function joeGame(n, k, m){
+this.people = n
+this.skip = k
+this.keep = m
+this.list = new Array(n)
+for (var i=0; i<n; i++) {
+	this.list[i] = 0
+	}
+}
+
+var currentGame = new joeGame(10,0,0)
+
+function joeth(n, k, s) {
+var x = k*s
+while (x > n) {
+	x = Math.floor(( k*(x-n) - 1.0 )/ (k-1.0) )
+	}
+return(x)
+}
+

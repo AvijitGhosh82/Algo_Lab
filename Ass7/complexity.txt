@@ -1,0 +1,27 @@
+The height of the RBT is at most 2log(n+1), which means depth first operations are logarithmic.
+
+INSERTION:
+
+Insertion begins by adding the node much as binary search tree insertion does and by coloring it red.
+Whereas in the binary search tree, we always add a leaf, in the red-black tree leaves contain no information,
+so instead we add a red interior node, with two black leaves, in place of an existing black leaf.
+Insertion of a node into an n-node red-black tree can be accomplished in O(lg n) tine. We use a slightly
+modified version of the insertion procedure to insert node z into the tree T as if it were an ordinary binary
+search tree, and then we color z red. To guarantee that the red-black properties are preserved, we then call
+an auxiliary procedure adjustafterinsert to recolor nodes and perform rotations. The call 
+INSERT(T, z) inserts node z, whose key is assumed to have already been filled in, into the red-black tree T. 
+
+DELETION:
+
+Like the other basic operations on an n-node red-black tree, deletion of a node take time O(lg n).
+Deleting a node from a red-black tree is only slightly more complicated than inserting a node.
+After splicing out a node the procedure DELETE calls an auxiliary procedure adjustafterremove that changes colors and performs rotations to restore the red-black properties.
+A call to adjust is made if y is black. If y is red, the red-black properties
+still hold when y is spliced out, for the following reasons:
+	No black-heights in the tree have changed,
+	No red nodes have been made adjacent,
+	Y could not have been the root if it was red, so the root remains black.
+
+SEARCH:
+
+Same as Binary search or arrays. Only one half of the tree is searched and it amounts to O(lg n) time.

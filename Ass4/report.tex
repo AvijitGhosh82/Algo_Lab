@@ -1,0 +1,95 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+
+\title{Assignment 4}
+\author{Avijit Ghosh }
+\date{February 2016}
+
+\begin{document}
+
+\maketitle
+
+\section{Elimination order}
+
+Consider there are n people initially. To remove one person alternatively we just multiply the
+round number m by 2, until it exceeds the total number n. The next elimination is now found by 
+shifting the place in a loop, that is, n+1 becomes 1 , n+2 becomes 2 , and so on. This is done by 
+subtracting n from 2*m. 
+
+Now we remember that all 2*k type (even) numbers are already eliminated.
+So we now subtract 1 to adjust for the shifted numbers, and thus we get the next number to be eliminated this way. Doubling and subtracting 1 is done repeatedly so that the number is less than or equal to n.
+
+Example, if n=10, the numbers 2, 4, 6, 8, and 10 are removed in passes 1,2,3,4 and 5
+Now, m=6. 2*m=12, which is greater than n. We now subtract it from 10 to get 2, double it as before 
+and obtain 4. Now 1 is subtracted to get 3. 
+When m=7, 2*m=14. Difference =4. 2*4 -1 = 7, our next number. 
+
+Similarly for m=8 , 2*m=16, diff=6, 2*6-1 =11. This, again is greater than 10 so we repeat this 
+adjustment again. Diff=1, 2*1 -1 =1 which is our next number.
+
+\section{Survivor Algorithm}
+
+If we view carefully, we get a nice relation for the input numbers n and the final survivor:
+
+So let's suppose that we have 2n people originally. After the first go-
+round, all even numbers are eliminated and we are left with $$1, 3, 5, .... (2n-1)$$
+
+So, for even case , 
+We have $$V(2n) = 2V(n)-1 $$
+
+For odd numbers:
+
+With 2n + 1 people, it turns out that
+person number 1 is wiped out just after person number 2n , and we're left with
+
+$$3, 5, 7, 9,...(2n+1)$$
+
+Again we almost have the original situation with n people, but this time their
+numbers are doubled and increased by 1 . Thus
+$$V(2n + 1) = 2V(n) + 1$$
+
+So, our final recursive formula to find the survivor turns to be:
+
+
+J(1) = 1
+
+J(2n) = 2J(n) - 1 when n is even positive
+
+J(2n + 1) = 2J(n) + 1 when  n is odd positive
+
+\section{Closed Form}
+
+Recurrence makes it possible to build a table of small values very
+quickly. 
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+n    & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\ \hline
+V(n) & 1 & 1 & 3 & 1 & 3 & 5 & 7 & 1 & 3 & 5  & 7  & 9  & 11 & 13 & 15 & 1\\ \hline
+\end{tabular}
+\end{center}
+
+
+We can group by powers of
+2; V(n) is always 1 at the beginning of a group and it increases by 2
+within a group. So if we write n in the form $$ n = 2 m + l$$ , where 2 m is the
+largest power of 2 not exceeding n and where l is what's left, the solution to
+the recurrence is
+$$V(2 m + l) = 2l + 1$$ 
+
+Proof:
+
+When m = 0 we must have l = 0
+
+this reduces to J(1) = 1 , which is true. The induction step has two parts,
+depending on whether l is even or odd. If m \textgreater  0 and 2 m + l = 2n , then l is
+even and
+$$J(2 m + l) = 2J(2 m - 1 + l/2) - 1 = 2(2l/2 + 1) - 1 = 2l + 1$$ , A similar
+proof works in the odd case, when $$2 m + l = 2n + 1$$ . Also note that
+$$J(2n + 1) - J(2n) = 2.$$
+
+
+
+\end{document}

@@ -1,0 +1,78 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Assignment 3}
+\author{Avijit Ghosh }
+\date{January 2016}
+
+\begin{document}
+
+\maketitle
+
+\section{The Skyline Problem:}
+\textbf{\large{}1. Rectangular Buildings}{\large \par}
+
+
+a. The series of buildings is generated randomly (format: left, height,
+right)
+
+b. They are arranged using Quicksort ( O(nlogn))
+
+c. A structure called Skyline is used here which is basically a linked
+list with two data points (left, height), in each node.
+
+d. Now the sorted building array is divided into left and right parts
+until the size is 1 (divide)
+
+e. The base case is when there is only one building, in this case
+the skyline data structure to be returned will have only two nodes:
+(left, height)-->(right, 0)
+
+f. The left and right lists(skylines) are now merged recursively on
+the basis of their x coordinates (left) in increasing order .(conquer).
+
+g. In this merge function two things are kept in mind: If the incoming
+node has the same x coordinate as the previous, but has a different
+height, the bigger height is taken. And if the incoing node has same
+height but a different x coordinate, it is dropped, as it is redundant
+(building overlapped by another). 
+
+h. Thus the above algorithm is a simple merge sort type algorithm
+which has O(nlogn) complexity.
+
+\textbf{\large{}2. Slant Buildings}{\large \par}
+
+
+This problem is largely similar to the previous one.
+
+a. Buildings are represented by (left, left height, right, right height)
+format.
+
+b. They are arranged using Quicksort ( O(nlogn))
+
+c. A structure called Skyline is used here which is basically a linked
+list with two data points (left, height), in each node.
+
+d. Now the sorted building array is divided into left and right parts
+until the size is \textbf{\large{}2} (divide). 
+
+e. This is because for two overlapping buildings, there will now be
+a third point to be taken into consideration, which is basically the
+point of intersection of the two roof lines of the two buildings.
+
+f. 5 points are returned in base case. (2 for left, 2 for right and
+1 intersection if valid).
+
+g. The left and right lists(skylines) are now merged recursively on
+the basis of their x coordinates (left) in increasing order .(conquer).
+
+h. In this merge function two things are kept in mind: If the incoming
+node has the same x coordinate as the previous, but has a different
+height, the bigger height is taken. And if the incoing node has same
+height but a different x coordinate, it is dropped, as it is redundant
+(building overlapped by another). 
+
+i. Thus the above algorithm is a simple merge sort type algorithm
+which has O(nlogn) complexity.
+
+\end{document}

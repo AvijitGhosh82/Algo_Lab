@@ -1,0 +1,28 @@
+Report- Assignment 5
+
+Avijit Ghosh
+February 2016
+
+
+The binary tree is a simple recursive structure made up of three things: A left child, a right child and its own data. Each child is again a binary tree of its own.
+
+Explanations for the various functions used:
+
+1. FILL: I have generated a number between 40 and 60 and divided it by 100 to get weight betwwen 0.4 and 0.6. A value called count=100 is maintained. The left subtree is assigned weight*(count-1) nodes and the right is assigned count-leftcound nodes. An unique value, between -100 to +100 is assigned to each node.
+
+2. PREORDER: The function takes root as parameter. If root is null it returns zero. Otherwise it prints the root, does a preorder of the left subtree and a preorder of the right subtree.
+
+3. INORDER: The function takes root as parameter. If root is null it returns zero. Otherwise it  does an inorder of the left subtree ,prints the root,and an inorder of the right subtree.
+
+4. POSTORDER: The function takes root as parameter. If root is null it returns zero. Otherwise it  does a postorder of the left subtree ,postorder of the right subtree, and prints the root.
+
+5. Maximum sum path from Node to leaf: A pointer to a int called "maxsum" is passed to the function to keep track of the maximum sum. The logic here is that we start from the root. If the root is not null then we add it to the previous value of sum. If sum is greater than maxsum this means we should go in this direction, otherwise we take the other direction. The function terminates when both left and right children are null (leaf).
+
+6. Maximum path for any two nodes: Similar logic as above, but now each node has four pathways that it can follow for maximum sum. 
+
+	a. Itself
+	b. Itself+left tree
+	c. Itself+right tree
+	d. Left tree+Itself+Right tree
+
+I take the maximum of these four possibilities at each pass and then compare it to a maxsum pointer as earlier. Here I keep collecting the nodes at the point of max sum and insert them into a queue. When nodes of greater value enter the queue the earlier values are dequeued. The final queue is printed.
