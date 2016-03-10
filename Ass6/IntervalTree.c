@@ -84,7 +84,10 @@ void PRETTY_PRINT(IntervalTree* root)
     for(i=1;i<h;i++)
     	printf("\t");
     printf("[%d, %d] ", root->l, root->u);
-    printList(root->list);
+    if(root->list)
+    	printList(root->list);
+    else 
+    	printf("\n");
     PRETTY_PRINT(root->rchild);
 }
 

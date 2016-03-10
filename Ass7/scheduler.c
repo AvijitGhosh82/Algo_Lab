@@ -83,6 +83,7 @@ rbtree *minValue(rbtree* node) {
     while (current->left != NULL) {
     current = current->left;
   }
+  // printf("Min T %d\n",current->T );
   return current;
 }
 
@@ -258,6 +259,7 @@ void right_rotate(rbtree *root, rbtree *x)
 
 void insert(rbtree *root, rbtree *z)
 {
+    // printf("%d\n", z->T);
     rbtree *y=NULL;
     rbtree *x=root;
     while(x!=NULL)
@@ -398,6 +400,7 @@ void delete(rbtree *root, rbtree *node) {
 
 void newproc(rbtree *root, int tim, int prio, int c)
 {
+    // printf("%d\n",tim );
     rbtree *node=create(tim,prio,c);
     insert(root, node);
     // pretty(root);
@@ -422,12 +425,18 @@ void scheduler(rbtree *root)
     FILE *f;
     f = fopen("output.txt", "a");
     rbtree *min=minValue(root); //least execution time
-    delete(root, min);
+    printf("Mintime %d\n", min->T);
+    if(min!=root)
+        delete(root, min);
+    printf("Post delete\n");
+    pretty(root);
     int s=min->T;
     min->T = min->T - ((min->p)*50);
     fprintf(f,"%d\t%d\t%d\t%d\n", min->id,min->p,s,min->T);
     if((min->T)>0)
     insert(root, min);
+    // if(min->T<0)
+    //     printf("Gone\n");
     fclose(f);
 }
 
@@ -482,14 +491,16 @@ int main()
         }
 
     prio=(rand() % (4))+1;
+    printf("%d\n", prio);
+    tim=val;
 
     root=create(tim,prio,c);
 
     while(c<M)//outer loop
     {
         //creating process
-        if(count(root)<N)
-        {
+        // if(count(root)<N)
+        // {
             while(1)
             {
                 val = (rand() % (max+1-min))+min;
@@ -500,14 +511,22 @@ int main()
                 }
 
             }
+            tim=val;
+            printf("%d\n", tim);
 
             prio=(rand() % (4))+1;
             c++;
             newproc(root,tim,prio,c);
+            printf("INSERT \n\n");
+            pretty(root);
 
-        }
+       // }
+
+        printf("SCHEDULER \n\n");
 
         scheduler(root);
+        pretty(root);
+
 
     }
 
