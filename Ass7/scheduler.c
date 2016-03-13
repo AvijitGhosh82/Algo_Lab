@@ -150,8 +150,10 @@ rbtree* search(rbtree* root, int key)
 int height(rbtree *t) {
     if (t == NULL)
         return 0;
+    else if (t->left == NULL && t->right == NULL)
+        return 1;
     else
-        return max(height(t->left), height(t->right)) + 1;
+        return max( height(t->left), height(t->right) ) + 1;
 }
 
 void pretty(rbtree* root)
