@@ -235,8 +235,8 @@ particle init()
 {
 	particle p;
 	p.color=getCOLOR(rand() % 6);
-	p.mass=1;
 	p.radius=rnd(0.02,0.05);
+    p.mass=p.radius*100;
 	p.rx=rnd(0.0,1.0);
 	p.ry=rnd(0.0,1.0);
 	p.vx=rnd(-0.5,0.5); 
