@@ -4,6 +4,13 @@
  * Roll No: 14CH3FP18
  */
 
+// COMPILE USING: gcc collisiongui.c -lm `sdl-config --cflags --libs`
+
+
+#include <SDL/SDL.h>
+#define SCREEN_WIDTH  640
+#define SCREEN_HEIGHT 640
+
 
 #include <stdio.h>
 #include <time.h>
@@ -14,7 +21,103 @@
 
 
 #define ArraySize 1000000
-#define TIME_LIMIT 10
+#define TIME_LIMIT 1000
+
+
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+    Uint8 *target_pixel = (Uint8 *)surface->pixels + y * surface->pitch + x * 4;
+    *(Uint32 *)target_pixel = pixel;
+}
+
+
+void draw_circle(SDL_Surface *surface, int n_cx, int n_cy, int radius, Uint32 pixel)
+{
+    // if the first pixel in the screen is represented by (0,0) (which is in sdl)
+    // remember that the beginning of the circle is not in the middle of the pixel
+    // but to the left-top from it:
+ 
+    double error = (double)-radius;
+    double x = (double)radius -0.5;
+    double y = (double)0.5;
+    double cx = n_cx - 0.5;
+    double cy = n_cy - 0.5;
+ 
+    while (x >= y)
+    {
+        set_pixel(surface, (int)(cx + x), (int)(cy + y), pixel);
+        set_pixel(surface, (int)(cx + y), (int)(cy + x), pixel);
+ 
+        if (x != 0)
+        {
+            set_pixel(surface, (int)(cx - x), (int)(cy + y), pixel);
+            set_pixel(surface, (int)(cx + y), (int)(cy - x), pixel);
+        }
+ 
+        if (y != 0)
+        {
+            set_pixel(surface, (int)(cx + x), (int)(cy - y), pixel);
+            set_pixel(surface, (int)(cx - y), (int)(cy + x), pixel);
+        }
+ 
+        if (x != 0 && y != 0)
+        {
+            set_pixel(surface, (int)(cx - x), (int)(cy - y), pixel);
+            set_pixel(surface, (int)(cx - y), (int)(cy - x), pixel);
+        }
+ 
+        error += y;
+        ++y;
+        error += y;
+ 
+        if (error >= 0)
+        {
+            --x;
+            error -= x;
+            error -= x;
+        }
+    }
+}
+
+
+void fill_circle(SDL_Surface *surface, int cx, int cy, int radius, Uint32 pixel)
+{
+    // Note that there is more to altering the bitrate of this 
+    // method than just changing this value.  See how pixels are
+    // altered at the following web page for tips:
+    //   http://www.libsdl.org/intro.en/usingvideo.html
+    static const int BPP = 4;
+ 
+    double r = (double)radius;
+    double dy;
+ 
+    for (dy = 1; dy <= r; dy += 1.0)
+    {
+        // This loop is unrolled a bit, only iterating through half of the
+        // height of the circle.  The result is used to draw a scan line and
+        // its mirror image below it.
+ 
+        // The following formula has been simplified from our original.  We
+        // are using half of the width of the circle because we are provided
+        // with a center and we need left/right coordinates.
+ 
+        double dx = floor(sqrt((2.0 * r * dy) - (dy * dy)));
+        int x = cx - dx;
+ 
+        // Grab a pointer to the left-most pixel for each half of the circle
+        Uint8 *target_pixel_a = (Uint8 *)surface->pixels + ((int)(cy + r - dy)) * surface->pitch + x * BPP;
+        Uint8 *target_pixel_b = (Uint8 *)surface->pixels + ((int)(cy - r + dy)) * surface->pitch + x * BPP;
+ 
+        for (; x <= cx + dx; x++)
+        {
+            *(Uint32 *)target_pixel_a = pixel;
+            *(Uint32 *)target_pixel_b = pixel;
+            target_pixel_a += BPP;
+            target_pixel_b += BPP;
+        }
+    }
+}
+
 
 
 typedef struct list
@@ -66,7 +169,7 @@ int Heap_s=0;
 
 int getCOLOR(int index)
 {
-    int rgb[] = {0, 16711680, 16753755, 65280, 255, 4915380, 15630956};
+    int rgb[] = {16711680, 16753755, 65280, 255, 4915380, 15630956};
     return rgb[index];
 }
 
@@ -131,7 +234,7 @@ double rnd(double fMin, double fMax)
 particle init()
 {
 	particle p;
-	p.color=getCOLOR(rand() % 7);
+	p.color=getCOLOR(rand() % 6);
 	p.mass=1;
 	p.radius=rnd(0.02,0.05);
 	p.rx=rnd(0.0,1.0);
@@ -357,11 +460,46 @@ void predict(particle *a, double limit, particle *arr, int s) {
         }
     }
 
+void redraw(double t, double limit, SDL_Surface *screen, particle *arr, int s) {
+        SDL_FillRect(screen, NULL, 0x000000);
+        int i;
+        for (i = 0; i < s; i++) {
+                fill_circle(screen, 640*arr[i].rx, 640*arr[i].ry, 640*arr[i].radius, 0xff000000 + arr[i].color);
+        }
+        // StdDraw.show(20);
+        if (t < limit) {
+            double dt=0.003;
+            CollisionHeap *n=Initcol(t + dt, NULL, NULL);
+            Insert(*n);
+        }
+    }
 
 
-void simulate(double limit, particle *arr, int s) {
+
+int simulate(double limit, particle *arr, int s) {
         
         // initialize PQ with collision events and redraw event
+
+
+
+    static const int width = 640;
+    static const int height = 640;
+ 
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+      return 1;
+ 
+    atexit(SDL_Quit);
+ 
+    SDL_Surface *screen = SDL_SetVideoMode(width, height, 0, SDL_DOUBLEBUF);
+ 
+    if (screen == NULL)
+        return 2;
+    
+        // int dum=0;
+        // for(dum=0;dum<=90000000;dum++);
+
+
+        // SDL_FillRect(screen, NULL, 0x000000);
         
         Heap_s=0;
 
@@ -390,7 +528,18 @@ void simulate(double limit, particle *arr, int s) {
                 move(&arr[i], min.time_stamp - t);
             t = min.time_stamp;
             if(t>0)
-            printf("Collision at time:  %lf s\n", t);
+            printf("System at time:  %lf s\n", t);
+
+
+            SDL_Event event; 
+            while(SDL_PollEvent(&event))
+            {
+                if(event.type == SDL_QUIT)
+                    return 0;
+            }
+     
+            SDL_LockSurface(screen);
+
 
             // process event
             if(a != NULL && b != NULL) 
@@ -398,28 +547,48 @@ void simulate(double limit, particle *arr, int s) {
             	sortedInsert(&(a->l),a->rx,a->ry,t);
             	sortedInsert(&(b->l),b->rx,b->ry,t);
 
+
+
+                // fill_circle(screen, 640*a->rx, 640*a->ry, 640*a->radius, 0xff000000 + a->color);
+                // fill_circle(screen, 640*b->rx, 640*b->ry, 640*b->radius, 0xff000000 + b->color);
+
+
+
             	bounceOff(a,b);              // particle-particle collision
             }
             else if (a != NULL && b == NULL) 
             {
             	sortedInsert(&(a->l),a->rx,a->ry,t);
+
+                // fill_circle(screen, 640*a->rx, 640*a->ry, 640*a->radius, 0xff000000 + a->color);
+
             	bounceOffVerticalWall(a);   // particle-wall collision
             }
             else if (a == NULL && b != NULL) 
             {
             	sortedInsert(&(b->l),b->rx,b->ry,t);
+
+                // fill_circle(screen, 640*b->rx, 640*b->ry, 640*b->radius, 0xff000000 + b->color);
+
             	bounceOffHorizontalWall(b);
             } // particle-wall collision
-            else if (a == NULL && b == NULL) printf("\nRedraw\n");//redraw(limit);               // redraw event
+            else if (a == NULL && b == NULL) 
+                redraw(t,limit,screen,arr,s);
+                
+                //redraw(limit);               // redraw event
 
             // update the priority queue with new collisions involving a or b
             predict(a, limit, arr, s);
             predict(b, limit, arr, s);
+
+            SDL_FreeSurface(screen);
+     
+            SDL_Flip(screen);
         }
     }
 
 
-void main()
+int main()
 {
 	srand(time(NULL));
 
@@ -434,41 +603,9 @@ void main()
 
 	simulate(TIME_LIMIT,arr,5);
 
-	FILE *File_Ball_1,*File_Ball_2,*File_Ball_3,*File_Ball_4,*File_Ball_5;
-    File_Ball_1=fopen("Ball_1.dat","w");
-    File_Ball_2=fopen("Ball_2.dat","w");
-    File_Ball_3=fopen("Ball_3.dat","w");
-    File_Ball_4=fopen("Ball_4.dat","w");
-    File_Ball_5=fopen("Ball_5.dat","w");
-
-    printList(arr[0].l, File_Ball_1);
-    printList(arr[1].l, File_Ball_2);
-    printList(arr[2].l, File_Ball_3);
-    printList(arr[3].l, File_Ball_4);
-    printList(arr[4].l, File_Ball_5);
-
-
-
-
-    //PLOTTING
-
-
-
-    FILE* f = fopen("plotinstruct", "wt");
-    fprintf(f, "set terminal jpeg\n");
-    fprintf(f, "set output 'plot1.jpg'\n");
-    fprintf(f, "plot 'Ball_1.dat' u 1:2 with lines lt rgb %d title 'Ball 1'\n",arr[0].color);
-    fprintf(f, "set output 'plot2.jpg'\n");
-    fprintf(f, "plot 'Ball_2.dat' u 1:2 with lines lt rgb %d title 'Ball 2'\n",arr[1].color);
-    fprintf(f, "set output 'plot3.jpg'\n");
-    fprintf(f, "plot 'Ball_3.dat' u 1:2 with lines lt rgb %d title 'Ball 3'\n",arr[2].color);
-    fprintf(f, "set output 'plot4.jpg'\n");
-    fprintf(f, "plot 'Ball_4.dat' u 1:2 with lines lt rgb %d title 'Ball 4'\n",arr[3].color);
-    fprintf(f, "set output 'plot5.jpg'\n");
-    fprintf(f, "plot 'Ball_5.dat' u 1:2 with lines lt rgb %d title 'Ball 5'\n",arr[4].color);
-
-    fclose(f);
-    system("gnuplot < plotinstruct");
+    return 0;
 
 }
+
+
 
