@@ -3,18 +3,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+
+int GT=0; // Global Time
+int current=-1; //current number of processes
 
 
 typedef struct rbtree{
     int T; //time
     int p; //priority
     int id;
+    int CT;//Create time
+    int ET;//End time
     int color; // 0 for black, 1 for red
     struct rbtree *left;
     struct rbtree *right;
     struct rbtree *parent;
 }rbtree;
+
 
 int max(int a, int b)
 {
@@ -22,20 +27,6 @@ int max(int a, int b)
         return a;
     else
         return b;
-}
-
-int count(rbtree *n)
-{
-    int c = 1;
- 
-    if (n == NULL)
-        return 0;
-    else
-    {
-        c += count(n->left);
-        c += count(n->right);
-        return c;
-     }
 }
 
 rbtree *grandparent(rbtree *n)
@@ -58,6 +49,7 @@ rbtree *leftOf(rbtree *n) {
 rbtree *rightOf(rbtree *n) {
         return n == NULL ? NULL : n->right;
     }
+
 
 void setcolor(rbtree *n, int c) {
         if (n != NULL)
@@ -122,13 +114,15 @@ rbtree *sibling(rbtree *n)
   return n->parent->left;
 }
 
-rbtree *create(int tim, int pr, int id)
+rbtree *create(int tim, int pr, int id, int CT, int ET)
 {
     rbtree *node=(rbtree *)malloc(sizeof(rbtree));
     node->color=BLACK;
     node->p=pr;
     node->T=tim;
     node->id=id;
+    node->CT=CT;
+    node->ET=ET;
     node->left=NULL;
     node->right=NULL;
     node->parent=NULL;
@@ -256,27 +250,33 @@ void right_rotate(rbtree *root, rbtree *x)
     }
 
 
-void insert(rbtree *root, rbtree *z)
-{
-    rbtree *y=NULL;
-    rbtree *x=root;
-    while(x!=NULL)
-    {
-        y=x;
-        if(z->T<x->T)
-            x=x->left;
-        else
-            x=x->right;
+void insert(rbtree **root, rbtree *z) {
+        current+=1;
+        if (*root == NULL) {
+            *root = z;
+        }
+        rbtree *n = *root;
+        while (1) {
+            int comparisonResult = n->T-z->T;
+            if (comparisonResult == 0) {
+                return;
+            } else if (comparisonResult < 0) {
+                if (leftOf(n) == NULL) {
+                    n->left=z;
+                    adjustAfterInsertion(*root, z);
+                    break;
+                }
+                n = leftOf(n);
+            } else { // comparisonResult > 0
+                if (rightOf(n) == NULL) {
+                    n->right=z;
+                    adjustAfterInsertion(*root,z);
+                    break;
+                }
+                n = rightOf(n);
+            }
+        }
     }
-    z->parent=y;
-    if(y==NULL)
-        root=z;
-    else if(z->T < y->T)
-        y->left=z;
-    else y->right=z;
-    adjustAfterInsertion(root,z);
-
-}
 
 
 void adjustAfterRemoval(rbtree *root, rbtree *n) {
@@ -357,6 +357,7 @@ void removeFromParent(rbtree *n) {
 
 
 void delete(rbtree *root, rbtree *node) {
+        current-=1;
         if (node == NULL) {
             // No such object, do nothing.
             return;
@@ -365,6 +366,8 @@ void delete(rbtree *root, rbtree *node) {
             rbtree *predecessor = findpredecessor(node);
             node->T=predecessor->T;
             node->p=predecessor->p;
+            node->CT=predecessor->CT;
+            node->ET=predecessor->ET;
             node->id=predecessor->id;
             node = predecessor;
         }
@@ -396,23 +399,24 @@ void delete(rbtree *root, rbtree *node) {
 
 
 
-void newproc(rbtree *root, int tim, int prio, int c)
+// void transplant(rbtree *root, rbtree *u, rbtree *v)
+// {
+//  if(u->parent==NULL)
+//      root=v;
+//  else if(u==u->parent->left)
+//      u->parent->left=v;
+//  else
+//      u->parent->right=v;
+//  v->parent=u->parent;
+// }
+
+
+void newproc(rbtree **root, int tim, int prio, int c)
 {
-    rbtree *node=create(tim,prio,c);
+    // printf("%d\n",tim );
+    rbtree *node=create(tim,prio,c,GT,-1);
     insert(root, node);
-    // pretty(root);
-    // printf("\n\n\n\n\n\n");
-
-}
-
-void testout(rbtree *root, int T)
-{
-    FILE *f;
-    f = fopen("output.txt", "a");
-    rbtree *node=search(root, T);
-    printf("Delete %d\n", T);
-    delete(root, node);
-    pretty(root);
+    pretty(*root);
     printf("\n\n\n\n\n\n");
 
 }
@@ -422,41 +426,90 @@ void scheduler(rbtree *root)
     FILE *f;
     f = fopen("output.txt", "a");
     rbtree *min=minValue(root); //least execution time
-    delete(root, min);
     int s=min->T;
+    if(s<0)
+        {
+            delete(root, min);
+            min=NULL;
+            return;
+        }
+    
+    printf("Mintime %d\n", min->T);
+    if(min!=root)
+    printf("Post delete\n");
+    pretty(root);
+    
     min->T = min->T - ((min->p)*50);
-    fprintf(f,"%d\t%d\t%d\t%d\n", min->id,min->p,s,min->T);
+    int PT=GT;
+    GT+=((min->p)*50);//Update Clock
     if((min->T)>0)
-    insert(root, min);
+        insert(&root, min);
+    else
+        min->ET=GT;
+    fprintf(f,"%d\t%7d\t%7d\t%7d\t%7d\t%7d\n", min->id,min->CT,min->p,PT,GT,min->ET);
+
+    //process ended
+
+    if(min->ET>0)
+    {
+        delete(root, min);
+        min=NULL;
+        return;
+    }
+
+    // if(min->T<0)
+    //     printf("Gone\n");
     fclose(f);
 }
 
+
+void testin(rbtree **root, int T)
+{
+    printf("Insert %d\n", T);
+    rbtree *node=create(T,0,0,GT,-1);
+    insert(root, node);
+    pretty(*root);
+    printf("\n\n\n\n\n\n");
+
+}
+
+void testout(rbtree *root, int T)
+{
+    rbtree *node=search(root, T);
+    printf("Delete %d\n", T);
+    delete(root, node);
+    pretty(root);
+    printf("\n\n\n\n\n\n");
+
+}
+
 int main()
-{   
-    srand(time(NULL));
-    // rbtree *root=create(1,10,1,0,2);
-    // testin(root, 2);
-    // testin(root, 1);
-    // testin(root, 4);
-    // testin(root, 5);
-    // testin(root, 9);
-    // testin(root, 3);
-    // testin(root, 6);
-    // testin(root, 7);
+{
+    rbtree *root=NULL;
+    // testin(&root, 2);
+    // testin(&root, 1);
+    // testin(&root, 4);
+    // testin(&root, 5);
+    // testin(&root, 9);
+    // testin(&root, 3);
+    // testin(&root, 6);
+    // testin(&root, 7);
 
     // testout(root,5);
     // testout(root,3);
     // testout(root,7);
-    int M,N;
-    printf("Enter the value of N\n");
-    scanf("%d", &N);
-    printf("Enter the value of M\n");
+
+
+      int M,N;
+    printf("Enter the value of M (number of nodes)\n");
     scanf("%d", &M);
+    printf("Enter the value of N (number of processes in tree at a time)\n");
+    scanf("%d", &N);
 
     FILE *f;
 
     f = fopen("output.txt", "w");
-    fprintf(f, "PID\tPRIORITY\tOFFLOAD\tONLOAD\n");
+    fprintf(f, "PID\tCREATED\tPRIORITY\tONLOAD\tOFFLOAD\tEND\n");
     fclose(f);
 
 
@@ -465,32 +518,17 @@ int main()
     int max=1000, min=1;
 
     int i,j;
-    rbtree *root; //Created process tree
     int c=1;
 
     int tim, prio;
 
-    while(1)
-        {
-            val = (rand() % (max+1-min))+min;
-            if (flag[val-1]==0)
-            {
-                flag[val-1]=1;
-                break;
-            }
-
-        }
-
-    prio=(rand() % (4))+1;
-
-    root=create(tim,prio,c);
-
-    while(c<M)//outer loop
+    while(c<=M)//outer loop
     {
         //creating process
-        if(count(root)<N)
-        {
-            while(1)
+        // if(count(root)<=N)
+        // {
+        if(current<N && c<=M)
+        {   while(1)
             {
                 val = (rand() % (max+1-min))+min;
                 if (flag[val-1]==0)
@@ -500,21 +538,30 @@ int main()
                 }
 
             }
+            tim=val;
+            // printf("%d\n", tim);
 
             prio=(rand() % (4))+1;
-            c++;
-            newproc(root,tim,prio,c);
+            newproc(&root,tim,prio,c);
+            c=c+1;
+            printf("INSERT \n\n");
+            // pretty(root);
 
+         // }
         }
 
+        printf("SCHEDULER \n\n");
         scheduler(root);
+         // pretty(root);
 
-    }
 
+   }
 
-    
-    
-
+   while(current>=0)
+   {
+    printf("SCHEDULER \n\n");
+    scheduler(root);
+   }
 
     return 0;
 
@@ -522,3 +569,9 @@ int main()
 
 
 }
+
+
+
+
+
+ 
