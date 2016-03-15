@@ -53,23 +53,6 @@ CollisionHeap H[ArraySize];
 int Heap_s=0;
 
 
-// PALETTE
-//     black = 0,
-//     red = 16711680 ,
-//     orange = 16753755,
-//     yellow = 16776705,
-//     green = 65280 ,
-//     blue = 255,
-//     indigo = 4915380,
-//     violet = 15630956,
-
-
-int getCOLOR(int index)
-{
-    int rgb[] = {0, 16711680, 16753755, 65280, 255, 4915380, 15630956};
-    return rgb[index];
-}
-
 
 void sortedInsert(list** head_ref, double rx, double ry, double ht)
 {
@@ -131,7 +114,7 @@ double rnd(double fMin, double fMax)
 particle init()
 {
 	particle p;
-	p.color=getCOLOR(rand() % 7);
+    p.color=rand()%255255255 +1;
 	p.radius=rnd(0.02,0.05);
     p.mass=p.radius*100;
 	p.rx=rnd(0.0,1.0);

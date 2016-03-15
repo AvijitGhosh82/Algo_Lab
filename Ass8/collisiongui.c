@@ -156,24 +156,6 @@ CollisionHeap H[ArraySize];
 int Heap_s=0;
 
 
-// PALETTE
-//     black = 0,
-//     red = 16711680 ,
-//     orange = 16753755,
-//     yellow = 16776705,
-//     green = 65280 ,
-//     blue = 255,
-//     indigo = 4915380,
-//     violet = 15630956,
-
-
-int getCOLOR(int index)
-{
-    int rgb[] = {16711680, 16753755, 65280, 255, 4915380, 15630956};
-    return rgb[index];
-}
-
-
 void sortedInsert(list** head_ref, double rx, double ry, double ht)
 {
 
@@ -231,10 +213,11 @@ double rnd(double fMin, double fMax)
 }
 
 
+
 particle init()
 {
 	particle p;
-	p.color=getCOLOR(rand() % 6);
+	p.color=rand()%16777216 +1;
 	p.radius=rnd(0.02,0.05);
     p.mass=p.radius*100;
 	p.rx=rnd(0.0,1.0);
@@ -451,7 +434,7 @@ void predict(particle *a, double limit, particle *arr, int s) {
         if (t + dtX <= limit) {
         		CollisionHeap *n1=Initcol(t + dtX, a, NULL);
         		Insert(*n1);
-        		// print_Heap(H);
+        		// print_Heap(H);fill_cir
         	}
         if (t + dtY <= limit) {
         		CollisionHeap *n2=Initcol(t + dtY, NULL, a);
@@ -516,7 +499,7 @@ int simulate(double limit, particle *arr, int s) {
         while (Heap_s!=1) { 
 
             // get impending event, discard if invalidated
-            CollisionHeap min=Extract_Min(H);
+            CollisionHeap min=Extract_Min();
             if (!isValid(min)) continue;
             particle *a = min.a;
             particle *b = min.b;
@@ -593,15 +576,18 @@ int main()
 	srand(time(NULL));
 
 	H[0].time_stamp=-DBL_MAX;
-	particle arr[5];
+	printf("Enter number of balls: \n");
+	int n;
+	scanf("%d", &n);
+	particle arr[n];
 	int i;
-	for(i=0;i<5;i++)
+	for(i=0;i<n;i++)
 	{
 		arr[i]=init();
 		pdet(arr[i]);
 	}
 
-	simulate(TIME_LIMIT,arr,5);
+	simulate(TIME_LIMIT,arr,n);
 
     return 0;
 
