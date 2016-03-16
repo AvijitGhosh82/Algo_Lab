@@ -400,7 +400,7 @@ void simulate(double limit, particle *arr, int s) {
     }
 
 
-void main()
+int main()
 {
 	srand(time(NULL));
 
@@ -450,6 +450,8 @@ void main()
 
     fclose(f);
     system("gnuplot < plotinstruct");
+
+    return 0;
 
 }
 
