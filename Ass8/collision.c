@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
-#include <malloc.h>
-
 
 #define ArraySize 1000000
 #define TIME_LIMIT 10
@@ -361,7 +359,7 @@ void simulate(double limit, particle *arr, int s) {
         while (Heap_s!=1) { 
 
             // get impending event, discard if invalidated
-            CollisionHeap min=Extract_Min(H);
+            CollisionHeap min=Extract_Min();
             if (!isValid(min)) continue;
             particle *a = min.a;
             particle *b = min.b;
