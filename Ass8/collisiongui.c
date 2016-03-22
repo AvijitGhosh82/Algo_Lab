@@ -5,6 +5,7 @@
  */
 
 // COMPILE USING: gcc collisiongui.c -lm `sdl-config --cflags --libs`
+ // MAC: gcc collisiongui.c -lm -I/usr/local/include -L/usr/local/lib -lSDL `sdl-config --cflags --libs`
 
 
 #include <SDL/SDL.h>
@@ -17,7 +18,6 @@
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
-#include <malloc.h>
 
 
 #define ArraySize 1000000
@@ -451,7 +451,7 @@ void redraw(double t, double limit, SDL_Surface *screen, particle *arr, int s) {
         }
         // StdDraw.show(20);
         if (t < limit) {
-            double dt=0.003;
+            double dt=0.05;
             CollisionHeap *n=Initcol(t + dt, NULL, NULL);
             Insert(*n);
         }
@@ -568,6 +568,7 @@ int simulate(double limit, particle *arr, int s) {
      
             SDL_Flip(screen);
         }
+        return 0;
     }
 
 
