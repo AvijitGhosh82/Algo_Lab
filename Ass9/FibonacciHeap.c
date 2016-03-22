@@ -215,6 +215,33 @@ void decreaseKeyHeap(fheap *h, int id, long newval)
 }
 
 
+void meldNodes(fheap *res, fheap_node *ptr, int level)
+{
+     fheap_node *child_ptr, *partner;
+     int i, ch_count;
+
+     for(i = 0; i < level; i++) printf("   ");
+
+     printf("%ld\n", ptr->key);
+ 	 insertHeap(res, ptr->id, ptr->key);
+
+     
+     if((child_ptr = ptr->child)) {
+     child_ptr = ptr->child->right;
+     
+         ch_count = 0;
+
+         do {
+             meldNodes(res, child_ptr, level+1);
+             child_ptr = child_ptr->right;
+         ch_count++;
+         } while(child_ptr != ptr->child->right);
+     }
+
+
+}
+
+
 
 void unionHeap_list(fheap *res, fheap *h)
 {
@@ -223,7 +250,7 @@ void unionHeap_list(fheap *res, fheap *h)
 
     for(i=0; i<h->max_trees; i++) {
         if((ptr = h->trees[i])) {
-            meldHeap(res,ptr);
+            meldNodes(res,ptr,0);
         }
     }
 }
@@ -558,7 +585,7 @@ int main()
         for(j=0;j<n;j++)
         {
             
-            fheap *C=makeHeap(n);
+            fheap *C=makeHeap(10000);
             if(min>dat[i][j].arr[0])
                 min=dat[i][j].arr[0];
             max=dat[i][j].arr[m-1];
@@ -568,10 +595,11 @@ int main()
             {   
                 d=dat[i][j].arr[l]; 
                 insertHeap(C,d,d);
-                printf("Cost after insert: %ld\n", C->key_comps);
+                long com;
             }
 
             H=unionHeap(H,C);
+            printf("Cost after %d inserts: %ld\n", m,H->key_comps);
             decreaseKeyHeap(H,max,min-1);
             printf("Cost after decreaseKeyHeap: %ld\n", H->key_comps);
 

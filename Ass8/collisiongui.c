@@ -451,7 +451,7 @@ void redraw(double t, double limit, SDL_Surface *screen, particle *arr, int s) {
         }
         // StdDraw.show(20);
         if (t < limit) {
-            double dt=0.05;
+            double dt=0.003;
             CollisionHeap *n=Initcol(t + dt, NULL, NULL);
             Insert(*n);
         }
