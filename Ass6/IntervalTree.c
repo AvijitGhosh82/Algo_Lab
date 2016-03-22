@@ -363,12 +363,12 @@ void MERGE(IntervalTree **roo, int l, int u)
 int main()
 {
 	srand(time(NULL));
-	// printf("Enter l:\n");
+	printf("Enter l:\n");
 	int l,u,n,i;
 	scanf("%d",&l);
-	// printf("Enter u:\n");
+	printf("Enter u:\n");
 	scanf("%d",&u);
-	// printf("Enter n:\n");
+	printf("Enter n:\n");
 	scanf("%d",&n);
 	IntervalTree *Tree=CREATE_INTERVAL_TREE(l,u,n);
 	//blank tree
@@ -379,7 +379,7 @@ int main()
 	int flag[range];
 	for(i=0;i<range;i++)
 		flag[i]=0;
-	// printf("Enter number of insertions\n");
+	printf("Enter number of insertions\n");
 	int ins,j,val;
 	scanf("%d",&ins);
 	for(j=0;j<ins;j++)
@@ -400,7 +400,7 @@ int main()
 	PRETTY_PRINT(Tree);
 	printf("\n\n");
 
-	// printf("Enter new U and L\n");	
+	printf("Enter new U and L\n");	
 	int t,L,U;
 	L=U=0;
 	scanf("%d", &t);

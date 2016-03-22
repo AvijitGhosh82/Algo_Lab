@@ -1,0 +1,610 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\title{Report for assignment 1}
+\author{Your Name (Roll Number)}
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding utf8
+\fontencoding global
+\font_roman times
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 0
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Assignment 9
+\end_layout
+
+\begin_layout Author
+Avijit Ghosh
+\end_layout
+
+\begin_layout Author
+14CH3FP18
+\end_layout
+
+\begin_layout Date
+20 March 2016
+\end_layout
+
+\begin_layout Abstract
+Simulation of reading large chunks of data using Fibonacci Heaps
+\end_layout
+
+\begin_layout Part
+Introduction
+\end_layout
+
+\begin_layout Standard
+Fibonacci heaps are interesting the!oretically because they have asymptotically
+ good runtime guarantees for many operations.
+ In particular, 
+\series bold
+insert, peek, and decrease-key
+\series default
+ all run in amortized 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ time.
+ 
+\series bold
+dequeueMin
+\series default
+ and 
+\series bold
+delete
+\series default
+ each run in amortized  
+\begin_inset Formula $O(lgn)$
+\end_inset
+
+ time.
+ This allows algorithms that rely heavily on 
+\series bold
+decrease-key
+\series default
+  to gain significant performance boosts.
+ For example, Dijkstra's algorithm  for single-source shortest paths can
+ be shown to run in 
+\begin_inset Formula $O(m+nlgn)$
+\end_inset
+
+ using  a Fibonacci heap, compared to 
+\begin_inset Formula $O(mlgn)$
+\end_inset
+
+ using a standard binary or binomial  heap.
+   Internally, a Fibonacci heap is represented as a circular, doubly-linked
+  list of trees obeying the min-heap property.
+ Each node stores pointers  to its parent (if any) and some arbitrary child.
+ Additionally, every  node stores its degree (the number of children it
+ has) and whether it  is a "marked" node.
+ Finally, each Fibonacci heap stores a pointer to  the tree with the minimum
+ value.
+\end_layout
+
+\begin_layout Standard
+To insert a node into a Fibonacci heap, a singleton tree is created and
+  merged into the rest of the trees.
+ The 
+\series bold
+merge
+\series default
+ operation works by simply  splicing together the doubly-linked lists of
+ the two trees, then updating  the min pointer to be the smaller of the
+ minima of the two heaps.
+ Peeking  at the smallest element can therefore be accomplished by just
+ looking at  the min element.
+ All of these operations complete in 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ time.
+   
+\end_layout
+
+\begin_layout Standard
+The tricky operations are 
+\series bold
+dequeueMin
+\series default
+ and 
+\series bold
+decreaseKey
+\series default
+.
+ 
+\series bold
+dequeueMin
+\series default
+ works  by removing the root of the tree containing the smallest element,
+ then  merging its children with the topmost roots.
+ Then, the roots are scanned  and merged so that there is only one tree
+ of each degree in the root list.
+  This works by maintaining a dynamic array of trees, each initially null,
+  pointing to the roots of trees of each dimension.
+ The list is then scanned  and this array is populated.
+ Whenever a conflict is discovered, the  appropriate trees are merged together
+ until no more conflicts exist.
+ The  resulting trees are then put into the root list.
+ A clever analysis using  the potential method can be used to show that
+ the amortized cost of this  operation is 
+\begin_inset Formula $O(lgn)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The other hard operation is 
+\series bold
+decreaseKey
+\series default
+, which works as follows.
+ First, we  update the key of the node to be the new value.
+ If this leaves the node  smaller than its parent, we're done.
+ Otherwise, we cut the node from its  parent, add it as a root, and then
+ mark its parent.
+ If the parent was  already marked, we cut that node as well, recursively
+ mark its parent,  and continue this process.
+ This can be shown to run in 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ amortized time  using yet another clever potential function.
+ Finally, given this function,  we can implement 
+\series bold
+delete
+\series default
+ by decreasing a key to 
+\begin_inset Formula $-\infty$
+\end_inset
+
+, then calling  
+\series bold
+dequeueMin
+\series default
+ to extract it.
+\end_layout
+
+\begin_layout Part
+Heap Operations
+\end_layout
+
+\begin_layout Section
+Inserting a node
+\end_layout
+
+\begin_layout Standard
+The following procedure inserts node x into Fibonacci heap H, assuming of
+ course that the node has already been allocated and that key[x] has already
+ been filled in.
+\end_layout
+
+\begin_layout Standard
+FIB-HEAP-INSERT(H, x)
+\end_layout
+
+\begin_layout Standard
+1 degree[x] 0
+\end_layout
+
+\begin_layout Standard
+2 p[x] NIL
+\end_layout
+
+\begin_layout Standard
+3 child[x] NIL
+\end_layout
+
+\begin_layout Standard
+4 left[x] x
+\end_layout
+
+\begin_layout Standard
+5 right[x] x
+\end_layout
+
+\begin_layout Standard
+6 mark[x] FALSE
+\end_layout
+
+\begin_layout Standard
+7 concatenate the root list containing x with root list H 
+\end_layout
+
+\begin_layout Standard
+8 if min[H] = NIL or key[x] < key[min[H]]
+\end_layout
+
+\begin_layout Standard
+9 then min[H] x
+\end_layout
+
+\begin_layout Standard
+10 n[H] n[H] + 1
+\end_layout
+
+\begin_layout Standard
+To determine the amortized cost of FIB-HEAP-INSERT, let H be the input Fibonacci
+ heap and H' be the resulting Fibonacci heap.
+ Then, t(H') = t(H) + 1 and m(H') = m(H), and the increase in potential
+ is
+\end_layout
+
+\begin_layout Standard
+((t(H) + 1) + 2m(H)) - (t(H) + 2m(H)) = 1 .
+ Since the actual cost is O(1), the amortized cost is O(1) + 1 = O(1).
+\end_layout
+
+\begin_layout Section
+Finding the minimum node
+\end_layout
+
+\begin_layout Standard
+The minimum node of a Fibonacci heap H is given by the pointer min[H], so
+ we can find the minimum node in O(1) actual time.
+ Because the potential of H does not change, the amortized cost of this
+ operation is equal to its O(1) actual cost.
+\end_layout
+
+\begin_layout Section
+Uniting two Fibonacci heaps
+\end_layout
+
+\begin_layout Standard
+The following procedure unites Fibonacci heaps H1 and H2, destroying H1
+ and H2 in the process.
+\end_layout
+
+\begin_layout Standard
+FIB-HEAP-UNION(H1,H2)
+\end_layout
+
+\begin_layout Standard
+1 H MAKE-FIB-HEAP()
+\end_layout
+
+\begin_layout Standard
+2 min[H] min[H1]
+\end_layout
+
+\begin_layout Standard
+3 concatenate the root list of H2 with the root list of H
+\end_layout
+
+\begin_layout Standard
+4 if (min[H1] = NIL) or (min[H2] NIL and min[H2] < min[H1])
+\end_layout
+
+\begin_layout Standard
+5 then min[H] min[H2]
+\end_layout
+
+\begin_layout Standard
+6 n[H] n[H1] + n[H2]
+\end_layout
+
+\begin_layout Standard
+7 free the objects H1 and H2
+\end_layout
+
+\begin_layout Standard
+8 return H Lines 1-3 concatenate the root lists of H1 and H2 into a new
+ root list H.
+ Lines 2, 4, and 5 set the minimum node of H, and line 6 sets n[H] to the
+ total number of nodes.
+ The Fibonacci heap objects H1 and H2 are freed in line 7, and line 8 returns
+ the resulting Fibonacci heap H.
+ As in the FIB-HEAP-INSERT procedure, no consolidation of trees occurs.
+\end_layout
+
+\begin_layout Standard
+The change in potential is
+\end_layout
+
+\begin_layout Standard
+(H) - ((H1) + (H2))
+\end_layout
+
+\begin_layout Standard
+= (t(H) + 2m(H)) - ((t(H1) + 2 m(H1)) + (t(H2) + 2m(H2)))
+\end_layout
+
+\begin_layout Standard
+= 0, because t(H) = t(H1) + t(H2) and m(H) = m(H1) + m(H2).
+ The amortized cost of FIB-HEAP-UNION is therefore equal to its O(1) actual
+ cost.
+\end_layout
+
+\begin_layout Section
+Extracting the minimum node
+\end_layout
+
+\begin_layout Standard
+The process of extracting the minimum node is the most complicated of the
+ operations presented in this section.
+ It is also where the delayed work of consolidating trees in the root list
+ finally occurs.
+ The following pseudocode extracts the minimum node.
+ The code assumes for convenience that when a node is removed from a linked
+ list, pointers remaining in the list are updated, but pointers in the extracted
+ node are left unchanged.
+ It also uses the auxiliary procedure MELD, which will be presented shortly.
+\end_layout
+
+\begin_layout Standard
+FIB-HEAP-EXTRACT-MIN(H)
+\end_layout
+
+\begin_layout Standard
+1 z min[H]
+\end_layout
+
+\begin_layout Standard
+2 if z NIL
+\end_layout
+
+\begin_layout Standard
+3 then for each child x of z
+\end_layout
+
+\begin_layout Standard
+4 do add x to the root list of H
+\end_layout
+
+\begin_layout Standard
+5 p[x] NIL
+\end_layout
+
+\begin_layout Standard
+6 remove z from the root list of H
+\end_layout
+
+\begin_layout Standard
+7 if z = right[z]
+\end_layout
+
+\begin_layout Standard
+8 then min[H] NIL
+\end_layout
+
+\begin_layout Standard
+9 else min[H] right[z]
+\end_layout
+
+\begin_layout Standard
+10 MELD(H)
+\end_layout
+
+\begin_layout Standard
+11 n[H] n[H] - 1
+\end_layout
+
+\begin_layout Standard
+12 return z
+\end_layout
+
+\begin_layout Standard
+Consolidating the root list consists of repeatedly executing the following
+ steps until every root in the root list has a distinct degree value.
+\end_layout
+
+\begin_layout Standard
+1.
+ Find two roots x and y in the root list with the same degree, where key[x]
+ key[y].
+\end_layout
+
+\begin_layout Standard
+2.
+ Link y to x: remove y from the root list, and make y a child of x.
+ This operation is performed by the FIB-HEAP-LINK procedure.
+ The field degree[x] is incremented, and the mark on y, if any, is cleared.
+\end_layout
+
+\begin_layout Standard
+The procedure MELD uses an auxiliary array A[0 .
+ .
+ D(n[H])]; if A[i] = y, then y is currently a root with degree[y] = i.
+\end_layout
+
+\begin_layout Standard
+MELD(H)
+\end_layout
+
+\begin_layout Standard
+1 for i 0 to D(n[H])
+\end_layout
+
+\begin_layout Standard
+2 do A[i] NIL
+\end_layout
+
+\begin_layout Standard
+3 for each node w in the root list of H
+\end_layout
+
+\begin_layout Standard
+4 do x w
+\end_layout
+
+\begin_layout Standard
+5 d degree[x]
+\end_layout
+
+\begin_layout Standard
+6 while A[d] NIL
+\end_layout
+
+\begin_layout Standard
+7 do y A[d]
+\end_layout
+
+\begin_layout Standard
+8 if key[x] > key[y]
+\end_layout
+
+\begin_layout Standard
+9 then exchange x y
+\end_layout
+
+\begin_layout Standard
+10 FIB-HEAP-LINK(H,y,x)
+\end_layout
+
+\begin_layout Standard
+11 A[d] NIL
+\end_layout
+
+\begin_layout Standard
+12 d d + 1
+\end_layout
+
+\begin_layout Standard
+13 A[d] x
+\end_layout
+
+\begin_layout Standard
+14 min[H] NIL
+\end_layout
+
+\begin_layout Standard
+15 for i 0 to D(n[H])
+\end_layout
+
+\begin_layout Standard
+16 do if A[i] NIL
+\end_layout
+
+\begin_layout Standard
+17 then add A[i] to the root list of H
+\end_layout
+
+\begin_layout Standard
+18 if min[H] = NIL or key[A[i]] < key[min[H]]
+\end_layout
+
+\begin_layout Standard
+19 then min[H] A[i]
+\end_layout
+
+\begin_layout Standard
+FIB-HEAP-LINK(H, y, x)
+\end_layout
+
+\begin_layout Standard
+1 remove y from the root list of H
+\end_layout
+
+\begin_layout Standard
+2 make y a child of x, incrementing degree[x]
+\end_layout
+
+\begin_layout Standard
+3 mark[y] FALSE 
+\end_layout
+
+\begin_layout Standard
+The actual cost of extracting the minimum node can be accounted for as follows.
+ An O(D(n)) contribution comes from there being at most D(n) children of
+ the minimum node that are processed in FIB-HEAP-EXTRACT-MIN and from the
+ work in lines 1-2 and 14-19 of Meld.
+ It remains to analyze the contribution from the for loop of lines 3-13.
+ The size of the root list upon calling Meld is at most D(n) + t(H) - 1,
+ since it consists of the original t(H) root-list nodes, minus the extracted
+ root node, plus the children of the extracted node, which number at most
+ D(n).
+ Every time through the while loop of lines 6-12, one of the roots is linked
+ to another, and thus the total amount of work performed in the for loop
+ is at most proportional to D(n) + t(H).
+ Thus, the total actual work is O(D(n) + t(H)).
+\end_layout
+
+\begin_layout Standard
+The potential before extracting the minimum node is t(H) + 2m(H), and the
+ potential afterward is at most (D(n) + 1) + 2m(H), since at most D(n) +
+ 1 roots remain and no nodes become marked during the operation.
+ The amortized cost is thus at most
+\end_layout
+
+\begin_layout Standard
+O(D(n) + t(H)) + ((D(n) + 1) + 2m(H)) - (t(H) + 2m(H))
+\end_layout
+
+\begin_layout Standard
+= O(D(n)) + O(t(H)) - t(H)
+\end_layout
+
+\begin_layout Standard
+= O(D(n)), since we can scale up the units of potential to dominate the
+ constant hidden in O(t(H)).
+ Intuitively, the cost of performing each link is paid for by the reduction
+ in potential due to the link reducing the number of roots by one.
+\end_layout
+
+\end_body
+\end_document

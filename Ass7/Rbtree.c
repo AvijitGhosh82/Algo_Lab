@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int GT=0; // Global Time
-int current=-1; //current number of processes
+int current=0; //current number of processes
 
 
 typedef struct rbtree{
@@ -557,7 +557,7 @@ int main()
 
    }
 
-   while(current>=0)
+   while(current>=-1)
    {
     printf("SCHEDULER \n\n");
     scheduler(root);

@@ -1,0 +1,234 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\title{Report for assignment 1}
+\author{Your Name (Roll Number)}
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding utf8
+\fontencoding global
+\font_roman times
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 0
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Assignment 9
+\end_layout
+
+\begin_layout Author
+Avijit Ghosh
+\end_layout
+
+\begin_layout Author
+14CH3FP18
+\end_layout
+
+\begin_layout Date
+20 March 2016
+\end_layout
+
+\begin_layout Abstract
+Simulation of reading large chunks of data using Fibonacci Heaps
+\end_layout
+
+\begin_layout Part
+Introduction
+\end_layout
+
+\begin_layout Standard
+Fibonacci heaps are interesting theoretically because they have asymptotically
+ good runtime guarantees for many operations.
+ In particular, 
+\series bold
+insert, peek, and decrease-key
+\series default
+ all run in amortized 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ time.
+ 
+\series bold
+dequeueMin
+\series default
+ and 
+\series bold
+delete
+\series default
+ each run in amortized  
+\begin_inset Formula $O(lgn)$
+\end_inset
+
+ time.
+ This allows algorithms that rely heavily on 
+\series bold
+decrease-key
+\series default
+  to gain significant performance boosts.
+ For example, Dijkstra's algorithm  for single-source shortest paths can
+ be shown to run in 
+\begin_inset Formula $O(m+nlgn)$
+\end_inset
+
+ using  a Fibonacci heap, compared to 
+\begin_inset Formula $O(mlgn)$
+\end_inset
+
+ using a standard binary or binomial  heap.
+   Internally, a Fibonacci heap is represented as a circular, doubly-linked
+  list of trees obeying the min-heap property.
+ Each node stores pointers  to its parent (if any) and some arbitrary child.
+ Additionally, every  node stores its degree (the number of children it
+ has) and whether it  is a "marked" node.
+ Finally, each Fibonacci heap stores a pointer to  the tree with the minimum
+ value.
+\end_layout
+
+\begin_layout Standard
+To insert a node into a Fibonacci heap, a singleton tree is created and
+  merged into the rest of the trees.
+ The 
+\series bold
+merge
+\series default
+ operation works by simply  splicing together the doubly-linked lists of
+ the two trees, then updating  the min pointer to be the smaller of the
+ minima of the two heaps.
+ Peeking  at the smallest element can therefore be accomplished by just
+ looking at  the min element.
+ All of these operations complete in 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ time.
+   
+\end_layout
+
+\begin_layout Standard
+The tricky operations are 
+\series bold
+dequeueMin
+\series default
+ and 
+\series bold
+decreaseKey
+\series default
+.
+ 
+\series bold
+dequeueMin
+\series default
+ works  by removing the root of the tree containing the smallest element,
+ then  merging its children with the topmost roots.
+ Then, the roots are scanned  and merged so that there is only one tree
+ of each degree in the root list.
+  This works by maintaining a dynamic array of trees, each initially null,
+  pointing to the roots of trees of each dimension.
+ The list is then scanned  and this array is populated.
+ Whenever a conflict is discovered, the  appropriate trees are merged together
+ until no more conflicts exist.
+ The  resulting trees are then put into the root list.
+ A clever analysis using  the potential method can be used to show that
+ the amortized cost of this  operation is 
+\begin_inset Formula $O(lgn)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The other hard operation is 
+\series bold
+decreaseKey
+\series default
+, which works as follows.
+ First, we  update the key of the node to be the new value.
+ If this leaves the node  smaller than its parent, we're done.
+ Otherwise, we cut the node from its  parent, add it as a root, and then
+ mark its parent.
+ If the parent was  already marked, we cut that node as well, recursively
+ mark its parent,  and continue this process.
+ This can be shown to run in 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ amortized time  using yet another clever potential function.
+ Finally, given this function,  we can implement 
+\series bold
+delete
+\series default
+ by decreasing a key to 
+\begin_inset Formula $-\infty$
+\end_inset
+
+, then calling  
+\series bold
+dequeueMin
+\series default
+ to extract it.
+\end_layout
+
+\end_body
+\end_document
