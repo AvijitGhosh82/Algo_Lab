@@ -1,0 +1,162 @@
+%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usepackage{babel}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+\title{Assignment 10}
+
+
+\author{Avijit Ghosh}
+
+
+\author{14CH3FP18}
+
+
+\date{25.03.2016}
+
+\maketitle
+ 
+\begin{abstract}
+Finding arbitrage opportunities in currency conversion using the Bellman-Ford
+Algorithm 
+\end{abstract}
+
+\part{Introduction}
+
+Arbitrage is the use of discrepancies in currency exchange rates to
+transform one unit of a currency into more than one unit of the same
+currency. Suppose, 1 U.S. dollar bought 0.82 Euro, Euro bought 129.7
+Japanese Yen,1 Japanese Yen bought 12 Turkish Lira, and one Turkish
+Lira bought 0.0008 U.S. dollars. Then, by converting currencies, a
+trader can start with U.S. dollar and buy 1.02 U.S. dollars, thus
+turning a \$0.02 profit. Suppose that we are given n currencies nxn
+table of exchange rates, we should find if such a cyclic arbitrage
+opportunity exists.
+
+
+\part{Bellman Ford Algorithm}
+
+function BellmanFord(list vertices, list edges, vertex source)
+
+init distance{[}{]},predecessor{[}{]}
+
+\indent // This implementation takes in a graph, represented as //
+lists of vertices and edges, and fills two arrays (distance and predecessor)
+with shortest-path (less cost/distance/metric) information
+
+\indent // Step 1: initialize graph for each vertex v in vertices:
+
+\indent distance{[}v{]}= inf
+
+\indent // At the beginning , all vertices have a weight of infinity
+
+\indent predecessor{[}v{]}= null
+
+\indent // And a null predecessor
+
+\indent \indent distance{[}source{]} = 0
+
+\indent \indent // Except for the Source, where the Weight is zero
+
+\indent//Step 2: relax edges repeatedly for i from 1 to size(vertices)-1:
+
+for each edge (u, v) with weight w in edges:
+
+\indent if distance{[}u{]} + w < distance{[}v{]}:
+
+\indent \indent distance{[}v{]} = distance{[}u{]} + w
+
+\indent \indent predecessor{[}v{]} = u
+
+\indent // Step 3: check for negative-weight cycles
+
+\indent for each edge (u, v) with weight w in edges:
+
+\indent\indent if distance{[}u{]} + w < distance{[}v{]}:
+
+\indent\indent\indent error \textquotedbl{}Graph contains a negative-weight
+cycle\textquotedbl{}
+
+\indent\indent return distance{[}{]}, predecessor{[}{]}
+
+
+\part{Using this in our Arbitrage Problem}
+
+A solution to the problem is achieved when the product of subsequents
+weights is >1. This can be converted to a BellMan ford problem by
+converting the edged weights to negative logs and then finding negative
+cycles in the graph.
+
+
+\part{Complexity Analysis}
+
+\medskip{}
+
+
+Time complexity: We first modify each weight $w$ by $-log(w)$ in
+time $O(|E|)$. We then use Bellman Ford to find cycles in time $O(|V||E|)$.
+Therefore our asymptotic time complexity is $O(|V||E|)$. Printing
+takes time $O(V)$
+
+\medskip{}
+
+
+Proof of correctness: Assume for proof by contradiction we have a
+risk-free currency exchange opportunity in the graph but it is not
+a cycle. We note that Bellman Ford, by iterating through all edges
+in finding shortest paths, will detect all graphs in a cycle. Our
+exchange opportunity must be present in the graph so we can follow
+a currency's edges to find this opportunity. If we follow paths leading
+from a source currency (which we know is included in the path of an
+opportunity) we must either: 
+\begin{itemize}
+\item i) either eventually find a path back to this currency
+\item ii) never return to this currency
+\end{itemize}
+\smallskip{}
+
+
+In case ii) we never return to our currency. This means we have not
+found a risk-free opportunity because this implies we return to a
+currency with positive value.
+
+\smallskip{}
+
+
+In case i) we consider first the subcase where we return with a positive
+path (or value 0).
+
+\smallskip{}
+
+
+In this subcase we have lost money returning to our currency (or made
+no money in case the path has sum of weights 0). This means it is
+not a risk-free opportunity because there is no gain in exercising
+it.
+
+\smallskip{}
+
+
+In the case i) subccase where we have a negative path: This means
+we have found a path returning to our original currency that makes
+the user money. Clearly (given an unchanging graph), we can exercise
+this path multiple times. This means it is a negative cycle and will
+be reported by Bellman Ford.
+
+\smallskip{}
+
+
+As we have shown how all cases except the last subcase are contradictory,
+we have proven that returning negative cycles found by Bellman Ford
+will return and only return risk-free currency exchanges.
+\end{document}

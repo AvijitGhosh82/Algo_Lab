@@ -1,0 +1,44 @@
+we consider the problem of selecting the ii-th smallest element from an unsorted list of nn elements. Somewhat surprisingly, there is an algorithm that solves this problem in linear time. This surprising algorithm is one of my favorites.
+
+We will arrive at this algorithm gradually by considering progressively more sophistocated approaches to this problem.
+
+The naive approach to this problem is simply to sort the list and choose the ii-th element. This approach gives us an upper bound of O(nlogn)O(nlog⁡n) on the complexity of the solution of this problem. This approach does, however, seem to be overkill. We don’t need to know all of the order statistics in order to solve the problem, which is what sorting the list gives us.
+
+In order to prove the plausibility of a more efficient algorithm, it is instructive to consider a special case of the selection problem, finding the smallest element in the list. It is immediately clear that this problem may be solved in linear time by iterating over the list while keeping track of the smallest element seen so far.
+
+Finally, we arrive at the median-of-medians algorithm, which solves the general selection problem in linear time. The idea behind the algorithm is similar to the idea behind quicksort.
+
+Select a pivot element, and partition the list into two sublists, the first of which contains all elements smaller than the pivot, and the second of which contains all elements greater than the pivot.
+Call the index of the pivot in the partitioned list kk. If k=ik=i, then return the pivot element.
+If i<ki<k, recurse into the sublist of elements smaller than the pivot, looking for the ii-th smallest element.
+If i>ki>k, recurse into the sublist of elements larger than the pivot, looking for the (i−k−1)(i−k−1)-th smallest element.
+Nothing in the above outline is terribly deep; it’s just a straighforward divide-and-conquer approach to solving the selection problem. The clever part of the algorithm is the choice of pivot element.
+
+It is not hard to see that, much like quicksort, if we naively choose the pivot element, this algorithm has a worst case performance of O(n2)O(n2). Continuing the parallel with quicksort, if we choose a random pivot, we get expected linear time performance, but still a worst case scenario of quadratic time. (For a proof of this fact, see CLRS.)
+
+To guarantee the linear running time of our algorithm, however we need a strategy for choosing the pivot element that guarantees that we partition the list into two sublists of relatively comparable size. Obviously the median of the values in the list would be the optimal choice, but if we could find the median in linear time, we would already have a solution to the general selection problem (consider this a small exercise).
+
+The median-of-medians algorithm chooses its pivot in the following clever way.
+
+Divide the list into sublists of length five. (Note that the last sublist may have length less than five.)
+Sort each sublist and determine its median directly.
+Use the median of medians algorithm to recursively determine the median of the set of all medians from the previous step. (This step is what gives the algorithm its name.)
+Use the median of the medians from step 3 as the pivot.
+The beauty of this algorithm is that it guarantees that our pivot is not too far from the true median. To find an upper bound on the number of elements in the list smaller than our pivot, first consider the half of the medians from step 2 which are smaller than the pivot. It is possible for all five of the elements in the sublists corresponding to these medians to be smaller than the pivot, which leads to an upper bound of 52⌈n5⌉52⌈n5⌉ such elements. Now consider the half of the medians from step 2 which are larger than the pivot. It is only possible for two of the elements in the sublists corresponding to these medians (the elements smaller than the median) to be smaller than the pivot, which leads to an upper bound of ⌈n5⌉⌈n5⌉ such elements. In addition, the sublist containing the pivot contributes exactly two elements smaller than the pivot. It total, we may have at most
+
+52⌈n5⌉+⌈n5⌉+2=72⌈n5⌉+2≤7n10+6
+52⌈n5⌉+⌈n5⌉+2=72⌈n5⌉+2≤7n10+6
+
+elements smaller than the pivot, or approximately 70% of the list. The same upper bound applies the the number of elements in the list larger than the pivot. It is this guarantee that the partitions cannot be too lopsided that leads to linear run time.
+
+Since step 3 of the divide-and-conquer strategy involves recursion on a list of size ⌈n5⌉⌈n5⌉, the run time TT of this algorithm satisfies the following recurrence inequality.
+
+T(n)≤T(⌈n5⌉)+T(7n10+6)+O(n)
+T(n)≤T(⌈n5⌉)+T(7n10+6)+O(n)
+
+
+So the complexity is O(n)
+
+Now, for the two array problem, I have modified the function a little bit. I use the median function but it now returns me the pivot position instead of the element. I match the kth smallest elements in each array, and discard all elements to the left of the smaller one and all elements to the right of the larger one, and re-call the function. This continues until there is only one element left in both the arrays. The minimum of that is our answer.
+
+This takes O(n) time.

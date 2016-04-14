@@ -1,0 +1,780 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+Buffalo Hird
+\end_layout
+
+\begin_layout Standard
+CS124
+\end_layout
+
+\begin_layout Standard
+Homework 3
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Problem 1: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Assuming exchange rates between 
+\begin_inset Formula $(0,\infty)$
+\end_inset
+
+ (i.e.
+ exchanges rates must be some non-zero fractional value or positive real
+ number), we can define our graph s.t.
+ the vertices are the individual currencies and edges are exchange rates.
+ We note that values below 1.0 are poor options as they involve making a
+ money-losing trade.
+ It could be possible that a succesful path would contain such a transaction
+ but we want to note this transactions as of negative utility.
+ By setting the weight of edges as the log of their exchange rate, we create
+ values such that all exchange rates below 1.0 are negative numbers, and
+ all exchange rates above 1.0 are positive, with 1.0 being weighted as 0.
+ We can in this process take the negative of each weight such that these
+ relations are reversed such that all net gain trades give negative weight
+ (or negative cost).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We can then use Bellman Ford to solve for the shortest path of the graph
+ of currencies and exchange rates as vertices and edges respectively.
+ We note that the shorter the path we find the more positive the exchange
+ rate.
+ However, this data is mostly meaningless for our purposes.
+ We note that Bellman Ford detects negative cycles, which in this case means
+ we have found an arbitrage loop from which we can produce risk-free positive
+ gain.
+ We can return this cycle found by the search.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Time complexity: We first modify each weight 
+\begin_inset Formula $w$
+\end_inset
+
+ by 
+\begin_inset Formula $-log(w)$
+\end_inset
+
+ in time 
+\begin_inset Formula $O(|E|)$
+\end_inset
+
+.
+ We then use Bellman Ford to find cycles in time 
+\begin_inset Formula $O(|V||E|)$
+\end_inset
+
+.
+ Therefore our asymptotic time complexity is 
+\begin_inset Formula $O(|V||E|)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Proof of correctness: Assume for proof by contradiction we have a risk-free
+ currency exchange opportunity in the graph but it is not a cycle.
+ We note that Bellman Ford, by iterating through all edges in finding shortest
+ paths, will detect all graphs in a cycle.
+ Our exchange opportunity must be present in the graph so we can follow
+ a currency's edges to find this opportunity.
+ If we follow paths leading from a source currency (which we know is included
+ in the path of an opportunity) we must either: 
+\end_layout
+
+\begin_layout Itemize
+i) either eventually find a path back to this currency
+\end_layout
+
+\begin_layout Itemize
+ii) never return to this currency
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In case ii) we never return to our currency.
+ This means we have not found a risk-free opportunity because this implies
+ we return to a currency with positive value.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In case i) we consider first the subcase where we return with a positive
+ path (or value 0).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this subcase we have lost money returning to our currency (or made no
+ money in case the path has sum of weights 0).
+ This means it is not a risk-free opportunity because there is no gain in
+ exercising it.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the case i) subccase where we have a negative path: This means we have
+ found a path returning to our original currency that makes the user money.
+ Clearly (given an unchanging graph), we can exercise this path multiple
+ times.
+ This means it is a negative cycle and will be reported by Bellman Ford.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As we have shown how all cases except the last subcase are contradictory,
+ we have proven that returning negative cycles found by Bellman Ford will
+ return and only return risk-free currency exchanges.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Problem 2:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We know that our set-making routine includes 
+\begin_inset Formula $n$
+\end_inset
+
+ make-set operations and 
+\begin_inset Formula $m$
+\end_inset
+
+ find and union operations.
+ Usually in this process we could end up with very deep, linear trees depending
+ on the union order.
+ Using union by rank, however, we are guaranteed to union such that our
+ max height of each set is the max the ranks of sets being unioned.
+ As a result, we are guaranteed a tree-like structure s.t.
+ find operations in union require a logarithmic amount of time to reverse,
+ instead of a linear amount of time if the trees were non-branching.
+ As a result, we do this logarithmic operation m times, where the logarithms
+ value is dependent on the number of elements s.t.
+ our max rank can never be bigger than log(|elements|).
+ As a result we have a runtime of 
+\begin_inset Formula $m*log(n)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Proof that 
+\begin_inset Formula $max(rank)=logn$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Base Case: If we have a sets with only 1 element each, then we have a max
+ rank of 1.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Inductive Step: Equivalently to 
+\begin_inset Formula $max(rank)=logn$
+\end_inset
+
+, we have 
+\begin_inset Formula $rank(n)\rightarrow2^{n}$
+\end_inset
+
+ elements at least.
+ Therefore for 
+\begin_inset Formula $rank(n+1)$
+\end_inset
+
+ we require 
+\begin_inset Formula $2*2^{n}$
+\end_inset
+
+ elements at least.
+ This make sense, because this means we combine two trees of rank 
+\begin_inset Formula $n$
+\end_inset
+
+ to produce this tree of rank 
+\begin_inset Formula $n+1$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We have therefore inductively shown that 
+\begin_inset Formula $2^{n}$
+\end_inset
+
+ elements or more are required for rank 
+\begin_inset Formula $n$
+\end_inset
+
+, therefore equivalently max rank of a set is
+\begin_inset Formula $logn$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We now must consider how n make-set operations and m find and union operations
+ run in 
+\begin_inset Formula $\Omega(mlog(n))$
+\end_inset
+
+ time when using the heuristic path compression.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Problem 3:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We know that a minimum spanning tree of a graph with 
+\begin_inset Formula $n$
+\end_inset
+
+ vertices will have 
+\begin_inset Formula $n-1$
+\end_inset
+
+ edges.
+ We begin by removing all edges with weights greater than or equal to the
+ weight of our chosen edge 
+\begin_inset Formula $e$
+\end_inset
+
+.
+ We can proceed through this process efficiently by using a DFS, where we
+ delete this edges as we proceed through our search.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We then run a modified DFS on this new graph, keeping track of our recursive
+ stack such that we can check for cycles.
+ We do this by detecing back edges as a result of visited a node marked
+ as already visited in our recursive stack.
+ From here we can return this cycle such that we can determine if 
+\begin_inset Formula $e$
+\end_inset
+
+ is in this cycle.
+ As we have removed the greater and equal edges, if 
+\begin_inset Formula $e$
+\end_inset
+
+ is part of one of these cycles, then 
+\begin_inset Formula $e$
+\end_inset
+
+ is not in an MST.
+ If 
+\begin_inset Formula $e$
+\end_inset
+
+ is not in one of these cycles, then 
+\begin_inset Formula $e$
+\end_inset
+
+ is in fact in an MST.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Time complexity: We run a DFS to delete greater than or equal to 
+\begin_inset Formula $e$
+\end_inset
+
+ edges in time 
+\begin_inset Formula $O(|V|+|E|)$
+\end_inset
+
+.
+ We then run our new DFS likewise in time 
+\begin_inset Formula $O(|V|+|E|)$
+\end_inset
+
+ and check discovered cycles for 
+\begin_inset Formula $e$
+\end_inset
+
+.
+ This process only adds linear time such that we have running time 
+\begin_inset Formula $O(n)$
+\end_inset
+
+ where 
+\begin_inset Formula $n$
+\end_inset
+
+ is the size of the input 
+\begin_inset Formula $|V|+|E|$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Proof of correctness: It is intuitive that our DFS's are possible and achieve
+ what is claimed.
+ It is therefore imperative to show how this process proves 
+\begin_inset Formula $e$
+\end_inset
+
+'s precense in an MST.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the case where 
+\begin_inset Formula $e$
+\end_inset
+
+ is not part of a cycle and therefore in some MST we note that this edge
+ connects two components of the graph that are otherwise unconnected.
+ It must therefore be the minimum edge weight between these two parts of
+ the graph as we have removed all larger edges and we have shown that no
+ other edge connects these components.
+ We know then by the cut property that 
+\begin_inset Formula $e$
+\end_inset
+
+ is in some MST.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the case where 
+\begin_inset Formula $e$
+\end_inset
+
+ is part of a cycle and therefore not in some MST we note that removing
+ 
+\begin_inset Formula $e$
+\end_inset
+
+ from the graph would still leave the graph connected.
+ Since 
+\begin_inset Formula $e$
+\end_inset
+
+ is the largest edge in the cycle - since we have removed all larger or
+ equal edges such that 
+\begin_inset Formula $e$
+\end_inset
+
+ is the largest edge left - removing 
+\begin_inset Formula $e$
+\end_inset
+
+ will best reduce the length of the tree such that we have the minimum spanning
+ edges.
+ Since we would always prefer to remove 
+\begin_inset Formula $e$
+\end_inset
+
+ from this cycle, 
+\begin_inset Formula $e$
+\end_inset
+
+ cannot be in an MST.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Problem 4:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We create an array of size 
+\begin_inset Formula $n$
+\end_inset
+
+ where we can track the number of edges touched by each vertex 
+\begin_inset Formula $v_{i}$
+\end_inset
+
+in array index 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ We iterate through our edges, checking if our edge values for the vertices
+ this new edge connects have array value 
+\begin_inset Formula $>0$
+\end_inset
+
+.
+ If so, we don't add the edge to our MST as one or both of these vertices
+ are already connected.
+ If the array value = 0, we add this edge to our spanning tree and incremenet
+ the array values of the connected vertices to 1.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We proceed to run this next linear step so long as we have more than 
+\begin_inset Formula $n-1$
+\end_inset
+
+ edges as we know a tree with 
+\begin_inset Formula $n$
+\end_inset
+
+ vertices has MSTs with 
+\begin_inset Formula $n-1$
+\end_inset
+
+ edges and we start with at most 
+\begin_inset Formula $n+10$
+\end_inset
+
+ edges.
+ We iterate through the non-added edges and add one to our spanning tree.
+ This inevitably creates a cycle as we now have 
+\begin_inset Formula $n$
+\end_inset
+
+ edges.
+ We then use a modified DFS to find this cycle and delete the largest element
+ from this cycle.
+ We now have a spanning tree again and repeat this process until we done
+ this for all additional up to 10 edges such that we have an MST.
+ 
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As in problem 3, we run our modified DFS on this graph, keeping track of
+ our recursive stack such that we can check for cycles.
+ We do this by detecing back edges as a result of visited a node marked
+ as already visited in our recursive stack.
+ From here we can return this cycle such that we can delete the largest
+ item in the cycle.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Time complexity: We determine our original spanning tree by viewing all
+ edges and weights such that we have 
+\begin_inset Formula $O(|V|+|E|)$
+\end_inset
+
+.
+ We then run our modified DFS a constant 
+\begin_inset Formula $\leq10$
+\end_inset
+
+ times where each iteration takes 
+\begin_inset Formula $O(|V|+|V|)$
+\end_inset
+
+ time and 
+\begin_inset Formula $O(|V|)$
+\end_inset
+
+ time to delete the largest edge from each cycle.
+ As each of these processes are linear in the size of the graph, we have
+ an algorithm with runtime 
+\begin_inset Formula $O(n)$
+\end_inset
+
+ where 
+\begin_inset Formula $n$
+\end_inset
+
+ is 
+\begin_inset Formula $|V|+|E|$
+\end_inset
+
+ and 
+\begin_inset Formula $|E|\leq|V|+10$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Proof of correctness: The exchange property shows that our adding and deletion
+ of greatest edge in a cycle creates a spanning tree no bigger than our
+ original spanning tree.
+ It can, in fact, create smaller trees if we replace edges with edges of
+ lesser weight.
+ By repeating this process, we will either have created a final MST which
+ is no smaller than our original tree, which implies we can make no smaller
+ tree, or we will have created a smaller MST by deleting every heavier edge
+ in each iteration leaving the smallest 
+\begin_inset Formula $n-1$
+\end_inset
+
+ edges by this process.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

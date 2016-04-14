@@ -1,0 +1,94 @@
+\documentstyle[11pt]{article}
+\textheight 9.25 in
+\topmargin  -0.65 in
+\footheight 0.4 in
+\textwidth 6.5in
+\oddsidemargin -0.2in
+\evensidemargin -0.4in
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\floatpagefraction}{0.9}
+\renewcommand{\dblfloatpagefraction}{0.9}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\begin{document}
+\baselineskip=12pt
+\parskip = 5pt
+\pagenumbering{arabic}
+\pagestyle{empty}
+
+\noindent
+CS/EE 548 \hfill Handout \#2 \\
+Fall 96-97 \hfill \\
+Myers\hfill \\
+
+\centerline{\Large\bf HOMEWORK \#1: Fundamental Algorithms}
+
+\vspace*{0.4in}
+
+\noindent
+This homework is due in class on Thursday, October 10, 1996. \\
+Be sure to show ALL steps to get full credit. 
+
+\begin{enumerate}
+
+\item {\bf Shortest/longest path} (20 points) \\
+Do part (a) on Figure 1 and parts (b) and (c) on Figure 2:
+\begin{itemize}
+\item[(a)] Compute shortest-paths from vertex 0 to each vertex using 
+           the Bellman-Ford algorithm (Algorithm 2.4.2). 
+\item[(b)] Compute longest-paths from vertex 0 to each vertex using
+           a modified Bellman-Ford algorithm (i.e., change min to max 
+           and initialize to $-\infty$ instead of $\infty$).
+\item[(c)] Compute longest-paths from vertex 0 to each vertex using
+           the Liao-Wong algorithm (Algorithm 2.4.3).
+\end{itemize}		
+
+\item {\bf Vertex cover} (20 points) \\ 
+Do the following for the graph in Figure 3:
+\begin{itemize}
+\item[(a)] Compute the vertex cover using the Vertex\_Cover\_V algorithm 
+           (Algorithm 2.4.4).
+\begin{itemize}
+\item[(i)] Selecting vertex 2 first.
+\item[(ii)] Selecting vertex 3 first.
+\end{itemize}		
+\item[(b)] Compute the vertex cover using the Vertex\_Cover\_E algorithm 
+           (Algorithm 2.4.5).
+\end{itemize}		
+
+\item {\bf Graph coloring} (20 points) \\ 
+Do the following for the set of intervals below: \\
+$(0,3), (2,4), (7,12), (6,15), (5,9), (1,7), (11,13)$
+\begin{itemize}
+\item[(a)] Construct an interval graph labelling the vertices in the 
+           order given above.
+\item[(b)] Color the graph using the Vertex\_Color algorithm 
+           (Algorithm 2.4.6).
+\item[(c)] Color the graph using the Left Edge algorithm
+           (Algorithm 2.4.7).
+\end{itemize}		
+
+\item {\bf Clique covering and partitioning} (20 points) \\ 
+Find a clique partition for the graph in Figure 4 using 
+Clique\_Partition and Max\_Clique algorithms (Algorithms 2.4.8 and 2.4.9).
+
+\item {\bf Satisfiability and cover} (20 points) \\ 
+Do the following for the hypergraph in Figure 5: 
+\begin{itemize}
+\item[(a)] Represent minimum edge-covering problem as a boolean satisfiability
+           problem.
+\item[(b)] Construct the (vertex/edge) incidence matrix $A_I$.
+\item[(c)] Solve the covering problem using the Exact\_Cover
+           algorithm (Algorithm 2.5.4).
+\end{itemize}		
+
+\item {\bf EXTRA CREDIT:} (10 points) \\ 
+Problem 2.8.3 from the book.
+
+\end{enumerate}
+	
+\end{document}
+
